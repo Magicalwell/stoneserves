@@ -28,6 +28,7 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/swagger": "^6.1.2",
     "@nestjs/typeorm": "^8.0.2",
+    "bcryptjs": "^2.4.3",
     "cross-env": "^7.0.3",
     "js-yaml": "^4.1.0",
     "mysql2": "^2.3.3",

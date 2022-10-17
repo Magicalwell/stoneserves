@@ -5,7 +5,9 @@ import { UserEntity } from './user.entity';
 import { ResultData } from '../../utils/result';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
+import { AppHttpCode } from '../../enums/code.enum';
 import { ConfigService } from '@nestjs/config';
+import { compare } from 'bcryptjs';
 @Injectable()
 export class UserService {
   constructor(
@@ -40,28 +42,29 @@ export class UserService {
       user = await this.findOneByAccount(account);
     }
     console.log(user, '我是user');
-
-    // if (!user)
-    //   return ResultData.fail(
-    //     AppHttpCode.USER_PASSWORD_INVALID,
-    //     '帐号或密码错误',
-    //   );
+    if (!user)
+      return ResultData.fail(
+        AppHttpCode.USER_PASSWORD_INVALID,
+        '帐号或密码错误',
+      );
     // const checkPassword = await compare(password, user.password);
-    // if (!checkPassword)
-    //   return ResultData.fail(
-    //     AppHttpCode.USER_PASSWORD_INVALID,
-    //     '帐号或密码错误',
-    //   );
-    // if (user.status === 0)
-    //   return ResultData.fail(
-    //     AppHttpCode.USER_ACCOUNT_FORBIDDEN,
-    //     '您已被禁用，如需正常使用请联系管理员',
-    //   );
-    // // 生成 token
-    console.log('before token');
-    const data = this.genToken({ id: '3666' });
-    console.log(data, '我是token');
+    // 密码也需要是存入加密的密码  需要调用bcryptjs中的库 不然一直是false  所以先暂时用全等
+    const checkPassword = password === user.password;
+    console.log(checkPassword, password, user.password);
 
-    return ResultData.ok('data');
+    if (!checkPassword)
+      return ResultData.fail(
+        AppHttpCode.USER_PASSWORD_INVALID,
+        '帐号或密码错误',
+      );
+    if (user.status === 0)
+      return ResultData.fail(
+        AppHttpCode.USER_ACCOUNT_FORBIDDEN,
+        '您已被禁用，如需正常使用请联系管理员',
+      );
+    // // 生成 token
+    const data = this.genToken({ id: '3666' });
+
+    return ResultData.ok({ data: 'ok', token: data });
   }
 }
